@@ -15,7 +15,7 @@ def aoran(card):
     return whichisit
  
 #The number of decks used:
-size = 2
+size = 6
 
 #Initializing the shoe.
 shoe = list(deck * size)
