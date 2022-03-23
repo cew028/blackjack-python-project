@@ -232,7 +232,7 @@ print("Welcome to the casino.")
 print(f"You currently have {'${:,.2f}'.format(bankroll)}.")
 print(f"The casino accepts bets between {'${:,.2f}'.format(minbet)} and {'${:,.2f}'.format(maxbet)}, and pays out blackjacks at a rate of 3 to 2.")
 print("You can split hands up to a maximum of three times.")
-print("You sit a table and begin to play blackjack.")
+print("You sit at a table and begin to play blackjack.")
 
 #Playing blackjack:
 
