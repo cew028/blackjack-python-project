@@ -441,6 +441,29 @@ def draw(hand):
     hand.append(card)
     return card
 
+def initial_deal():
+    """The hands are reset. The dealer passes out the first set of cards to the player and themselves."""
+    table.your_main_hand = []
+    table.split_hand_1 = []
+    table.split_hand_2 = []
+    table.split_hand_3 = []
+    table.dealer_hand = []
+    table.dealer_secret = []
+    table.willing_to_split = True
+    table.has_doubled_down_0 = False
+    table.has_doubled_down_1 = False
+    table.has_doubled_down_2 = False
+    table.has_doubled_down_3 = False
+    table.insured = False
+    draw(table.your_main_hand)
+    draw(table.dealer_hand)
+    draw(table.your_main_hand)
+    draw(table.dealer_secret)
+    print(f"The dealer hands you {a_or_an(table.your_main_hand[0])} {card_namer(table.your_main_hand[0])} and themselves {a_or_an(table.dealer_hand[0])} {card_namer(table.dealer_hand[0])}.")
+    print(f"The dealer then hands you {a_or_an(table.your_main_hand[1])} {card_namer(table.your_main_hand[1])} and themselves a face down card.") 
+    print(f"Your current score is {score(table.your_main_hand)}.")
+    print(f"The dealer has a {score(table.dealer_hand)} and a face down card.")
+
 def make_a_bet():
     """Prompt the player to place a wager."""
     while True:
@@ -473,31 +496,7 @@ def move_to_next_hand(hand):
         print(f"Your current score is {score(hand)}.")
         print(f"The dealer has a {score(table.dealer_hand)} and a face down card.")
         table.playable = True
-        table.has_doubled_down = False
         table.willing_to_split = True
-
-def initial_deal():
-    """The hands are reset. The dealer passes out the first set of cards to the player and themselves."""
-    table.your_main_hand = []
-    table.split_hand_1 = []
-    table.split_hand_2 = []
-    table.split_hand_3 = []
-    table.dealer_hand = []
-    table.dealer_secret = []
-    table.willing_to_split = True
-    table.has_doubled_down_0 = False
-    table.has_doubled_down_1 = False
-    table.has_doubled_down_2 = False
-    table.has_doubled_down_3 = False
-    table.insured = False
-    draw(table.your_main_hand)
-    draw(table.dealer_hand)
-    draw(table.your_main_hand)
-    draw(table.dealer_secret)
-    print(f"The dealer hands you {a_or_an(table.your_main_hand[0])} {card_namer(table.your_main_hand[0])} and themselves {a_or_an(table.dealer_hand[0])} {card_namer(table.dealer_hand[0])}.")
-    print(f"The dealer then hands you {a_or_an(table.your_main_hand[1])} {card_namer(table.your_main_hand[1])} and themselves a face down card.") 
-    print(f"Your current score is {score(table.your_main_hand)}.")
-    print(f"The dealer has a {score(table.dealer_hand)} and a face down card.")
 
 def pay_out_insurance():
     """If the player purchased insurance, this function resolves that."""
