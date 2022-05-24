@@ -262,7 +262,6 @@ deck = [
         "suit": "spades",
         "points" : 10,
     },
-    
 ]
 
 class Table(object):   
@@ -311,14 +310,13 @@ class Table(object):
 def a_or_an(card):
     """Determines whether an "a" or an "an" should preface an inputted card."""
     if card["name"] == "ace" or card["name"] == "eight":
-        which_is_it = "an"
+        return "an"
     else:
-        which_is_it = "a"
-    return which_is_it
+        return "a"
 
 def add_to_your_bet(amount):
     """Under certain circumstances the player may add more money than just their initial bet on a given hand."""
-    print(f"You add another {'${:,.2f}'.format(amount)} to the table.")
+    print(f"You add another {usd(amount)} to the table.")
 
 def ask_to_play_again():
     """Prompt the player to play another hand."""
@@ -333,7 +331,7 @@ def ask_to_play_again():
     elif play_again == "No":
         # The player elected not to play again.
         print("You get up and leave the blackjack table.")
-        print(f"You finish with {'${:,.2f}'.format(table.bankroll)}.")
+        print(f"You finish with {usd(table.bankroll)}.")
         quit()
 
 def buy_insurance():
@@ -344,8 +342,7 @@ def buy_insurance():
         if insurance == "Yes":
             # The player elected to buy insurance.
             if table.bankroll - 0.5*bet < bet:
-                print("You tried to buy insurance, but you do not have enough money to do so.")
-                print(f"In order to buy insurance, you need to bet half of your initial bet of {'${:,.2f}'.format(bet)}, but you currently only have {'${:,.2f}'.format(table.bankroll - bet)} free.")
+                you_tried_to("buy insurance", False)
             else:
                 add_to_your_bet(bet*0.5)
                 table.insured = True
@@ -356,13 +353,13 @@ def buy_insurance():
 def calculate_winner(hand):
     """This function determines whether the dealer or the current player hand is the winner."""
     you_doubled_down = 0
-    # First we check if the hand had been doubled down.
     if (
         (hand == table.your_main_hand and table.has_doubled_down_0)
         or (hand == table.split_hand_1 and table.has_doubled_down_1)
         or (hand == table.split_hand_2 and table.has_doubled_down_2)
         or (hand == table.split_hand_3 and table.has_doubled_down_3)
     ): 
+        # First we check if the hand had been doubled down.
         print("Your face down card is turned over.")
         print(f"It is {a_or_an(hand[-1])} {card_namer(hand[-1])}.")
         print(f"Your final score is {score(hand)}.")
@@ -396,12 +393,12 @@ def check_for_a_natural():
             winnings = bet * 1.5
             table.bankroll = table.bankroll + winnings
             print(f"The dealer turns over their face down card, revealing {a_or_an(table.dealer_secret[0])} {card_namer(table.dealer_secret[0])}, which does not beat your hand.")
-            print(f"You win at a rate of 3 to 2, meaning you gain {'${:,.2f}'.format(winnings)}.")
+            print(f"You win at a rate of 3 to 2, meaning you gain {usd(winnings)}.")
             check_funds()
 
 def check_funds():
     """Print how much money the player has in their bankroll."""
-    print(f"Your current bankroll is {'${:,.2f}'.format(table.bankroll)}.")
+    print(f"Your current bankroll is {usd(table.bankroll)}.")
 
 def cut_card_check():
     """Did the dealer reach the cut card?"""
@@ -418,8 +415,7 @@ def double_down(hand):
         if double_down == "Yes":
             # The player elected to double down.
             if table.bankroll - bet < bet:
-                print("You tried to double down, but you do not have enough money to do so.")
-                print(f"In order to double down, you need to match your initial bet of {'${:,.2f}'.format(bet)}, but you currently only have {'${:,.2f}'.format(tablet.bankroll - bet)} free.")
+                you_tried_to("double down", True)
             else:
                 add_to_your_bet(bet)
                 draw(hand)
@@ -456,10 +452,10 @@ def make_a_bet():
         
         if bet > table.max_bet or bet < table.min_bet:
             print("Your bet is not in the allowed range at this casino.")
-            print(f"The minimum bet is {'${:,.2f}'.format(table.min_bet)} and the maximum bet is {'${:,.2f}'.format(table.max_bet)}.")
+            print(f"The minimum bet is {usd(table.min_bet)} and the maximum bet is {usd(table.max_bet)}.")
         elif bet > table.bankroll:
             print("You cannot bet more than you currently have.")
-            print(f"You only have {'${:,.2f}'.format(table.bankroll)}.")
+            print(f"You only have {usd(table.bankroll)}.")
         else:
             # The player entered a valid bet.
             break
@@ -581,8 +577,8 @@ def split_pairs(hand):
             if split == "Yes":
                 # The player elected to split.
                 if table.bankroll - bet < bet:
-                    print("You tried to split your hand, but you do not have enough money to do so.")
-                    print(f"In order to split, you need to match your initial bet of {'${:,.2f}'.format(bet)}, but you currently only have {'${:,.2f}'.format(table.bankroll - bet)} free.")
+                    you_tried_to("split your hand", True)
+                    table.willing_to_split = False
                 else:
                     if len(table.split_hand_1) == 0:
                         new_hand = table.split_hand_1
@@ -617,6 +613,14 @@ def split_pairs(hand):
                 table.willing_to_split = False
                 print("You did not split.")
 
+def usd(amount):
+    """This function formats the inputted amount to be in dollars and cents.
+    If there are no cents, write $X instead of $X.00."""
+    if amount % 1 == 0:
+        return f"${int(amount)}"
+    else:
+        return '${:,.2f}'.format(amount)
+
 def yes_or_no():
     """This prompts the player to answer a yes or no question."""
     while True:
@@ -628,6 +632,14 @@ def yes_or_no():
             return "Yes"
         else:
             return "No"
+
+def you_tried_to(action, match_your_bet):
+    """This function runs when you try to buy insurance, double down, or split your hand, but don't have enough money to do so."""
+    print(f"You tried to {action}, but you do not have enough money to do so.")
+    if match_your_bet == True:
+        print(f"In order to {action}, you need to match your initial bet of {usd(bet)}, but you currently only have {usd(table.bankroll - bet)} free.")
+    else:
+        print(f"In order to {action}, you need to bet half of your initial bet of {usd(bet)}, but you currently only have {usd(table.bankroll - bet)} free.")
 
 # The number of decks used:
 size = 6
@@ -657,11 +669,10 @@ table = Table(
 
 # Before we begin, we shuffle the shoe:
 random.shuffle(table.shoe)
-table.playable = True
 
 print("Welcome to the casino.")
 check_funds()
-print(f"The casino accepts bets between {'${:,.2f}'.format(table.min_bet)} and {'${:,.2f}'.format(table.max_bet)}, and pays out blackjacks at a rate of 3 to 2.")
+print(f"The casino accepts bets between {usd(table.min_bet)} and {usd(table.max_bet)}, and pays out blackjacks at a rate of 3 to 2.")
 print("You can split hands up to a maximum of three times.")
 print("You sit at a table and begin to play blackjack.")
 while True:
@@ -670,7 +681,7 @@ while True:
     check_for_a_natural()
     split_pairs(table.your_main_hand)
     # The player may have the ability to split again if they happened to draw another pair. 
-    # The following if statements makes sure not to double-ask them if they've already said no. 
+    # The following if statements make sure not to double-ask them if they've already said no. 
     # We ask twice more since players can split up to three times.
     if table.willing_to_split:
         split_pairs(table.your_main_hand)
@@ -714,6 +725,8 @@ while True:
         calculate_winner(table.split_hand_3)
     pay_out_insurance()
     ask_to_play_again()
-    cut_card_check()    # Note that placing this function here means that we only shuffle the shoe only at the ends of hands.
+    cut_card_check()    # Note that placing this function here means that we only shuffle the shoe at the ends of hands.
                         # This is okay though - if the cut card is deep enough one hand will not run out of cards.
                         # The variable amount of cards in the last hand also means that the deck penetration isn't quite hard-coded.
+                        # An alternative is to check if you reach the cut card every time you call the draw function.
+                        # That would be more realistic but would mean that the dealer always places the cut card in the exact same place.
